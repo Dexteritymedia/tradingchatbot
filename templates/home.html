@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}ChatBot Page{% endblock title %}
+
+
+{% block content %}
+        <div class="container mt-5" style="margin-top: 50px;">
+			<div class="row">
+			<div class="col-12">
+            {% if not get_history %}
+            <h1 class="text-center mt-5">Hi {{request.user.username}} 👋, Let's Talk!</h1>
+            {% endif %}
+            <ol class="list-group mt-5" id="results">
+                {% for history in get_history %}
+				<div class="card text-white bg-success mt-5 mb-3">
+					<div class="card-body">
+						<h4 class="card-title">{{history.user.username|title}} <i class="fa fa-circle-user"></i></h4>
+						<br/>
+							<p class="card-text">{{history.message}}</p>
+					</div>
+				</div>
+				<a href="{% url 'delete_message' history.id  %}" style="text-decoration: none; color: grey"><small><i class="fa fa-trash" aria-hidden="true"></i> Delete</small></a>
+				<div class="card text-white bg-secondary mt-5 mb-3">
+					<div class="card-body">
+						<h4 class="card-title">Bot <i class="fa fa-robot"></i></h4>
+						<br/>
+							<p class="card-text">{{history.bot_response|safe}}</p>
+					</div>
+				</div>
+				<a href="{% url 'delete_message' history.id  %}" style="text-decoration: none; color: grey"><small><i class="fa fa-trash" aria-hidden="true"></i> Delete</small></a>
+                {% endfor %}
+            </ol>
+			
+			
+            <form hx-post="{% url 'chatbot_page' %}" hx-target="#results" hx-trigger="keyup[key === 'Enter' && !shiftKey]" hx-include="#question-text-area" hx-swap="afterbegin scroll:bottom" hx-push-url="true" hx-indicator="#spinner" method="post" class="mt-3">
+                {% csrf_token %}
+                <label for="exampleFormControlTextarea1" class="form-label">Enter your message</label>
+                <div class="d-flex mb-3 gap-2">
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="1" placeholder="How can i help you?" name="userInput"></textarea>
+                    <button class="ms-3 link-info" type="submit"><i class="fas fa-paper-plane"></i></button>
+                </div>
+				<i id="spinner" class="text-center htmx-indicator fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only"> Loading...</span>
+                <div class="d-flex justify-content-center m-3 align-items-center gap-3">
+                    {% if get_history %}
+                <a href="{% url 'delete'  %}" class="btn btn-outline-warning me-2">Delete all Chat</a>
+                {% endif %}
+                <a href="{% url 'logout'  %}" class="btn btn-outline-danger me-2">Log out </a>
+            </div>
+                
+            </form>
+        
+        </div>
+	</div>
+</div>
+{% endblock content %}

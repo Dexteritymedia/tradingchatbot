@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -146,6 +147,8 @@ AUTH_USER_MODEL = 'core.User'
 OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 ALPHA_VANTAGE_API_KEY = env('ALPHA_VANTAGE_API_KEY')
+
+SERPER_API_KEY = env('SERPER_API_KEY')
 
 #CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
