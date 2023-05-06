@@ -6,8 +6,7 @@ from django.conf import settings
 
 from langchain.utilities import GoogleSerperAPIWrapper
 from langchain.llms.openai import OpenAI
-from langchain.agents import initialize_agent, Tool
-from langchain.agents import AgentType
+from langchain.agents import initialize_agent, Tool, AgentType, ZeroShotAgent, ConversationalChatAgent, AgentExecutor, create_pandas_dataframe_agent
 from langchain import LLMMathChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import SerpAPIWrapper
@@ -17,7 +16,6 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.document_loaders import DataFrameLoader
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.agents import create_pandas_dataframe_agent
 
 import numexpr as ne
 
@@ -115,12 +113,13 @@ def chatbot(message):
 
 def multiple_stock_price(request):
 	symbols= ["IBM", "MSFT", "APPL"]
+	data = {}
 	for symbol in symbols:
-		url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval==5min&apikey=alpha_vantage_api_key'
-		r = requests.get(url)
-		data = r.json()
-		data_as_json = json.dumps(data)
-		return data_as_json
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval==5min&apikey=alpha_vantage_api_key'
+	    r = requests.get(url)
+	    data = r.json()
+	    data_as_json = json.dumps(data)
+	return data_as_json
 
 def multiple_stock_price_url(request):
     API_URL = "https://www.alphavantage.co/query"
@@ -163,6 +162,21 @@ def macd_stock_price_url(request):
     data = r.json()
     data_as_json = json.dumps(data)
     return data_as_json
+
+
+def multiple_stock_price_indicator(request):
+	symbols= ["IBM", "MSFT", "APPL"]
+	indicators = ['EMA', 'SMA', 'MACD']
+	data = {}
+	for symbol in symbols:
+		for indicator in indicators:
+			url = f'https://www.alphavantage.co/query?function={indicator}&symbol={symbol}&interval=weekly&time_period=10&series_type=open&apikey=alpha_vantage_api_key'
+                        r = requests.get(url)
+			wrapped_data = r.content.decode("utf-8")
+			data_dict = json.loads(wrapped_data)
+			json_data = r.json()
+        return data
+
 
 def chatbot_(message):
     llm = OpenAI(temperature=0)
@@ -226,5 +240,60 @@ def indicator_chatbot(message):
     ]
     memory = ConversationBufferMemory(memory_key="chat_history")
     agent_chain = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION, memory=memory)
+    chain_run = agent_chain.run(input=message)
+    return chain_run
+
+
+def indicator_chatbot_function(message):
+    llm = OpenAI(temperature=0)
+    llm_math_chain = LLMMathChain(llm=llm)
+    #search = SerpAPIWrapper()
+    tools = [
+        Tool(
+    	    name='Stock DB',
+    	    func=stock_price_url,
+    	    description="Useful for when you need to answer questions about stocks and their prices."
+        ),
+        Tool(
+            name = "EMA Stock",
+            func=ema_stock_price_url,
+            description="useful for when you need to answer questions about stocks exponential moving average (EMA) values"
+        ),
+    	Tool(
+    	    name = "SMA Stock",
+    	    func=sma_stock_price_url,
+    	    description="useful for when you need to answer questions about simple moving average (SMA) values"
+        ),
+    	Tool(
+    	    name='MACD Stock',
+    	    func=macd_stock_price_url,
+    	    description="Useful for when you need to answer questions about stocks moving average convergence / divergence (MACD) values and their prices."
+        ),
+        Tool(
+    	    name = "Calculator",
+    	    func=llm_math_chain.run,
+    	    description="useful for when you need to answer math questions such as calculating compound and simple interests, interest rate, percentage increase or decrease in price."
+        ),
+        """
+        Tool(
+    	    name = "Google Search",
+    	    func=search.run,
+    	    description="useful for when you need to answer questions about current events and news about the stock market news, company reports, economic news and market analysis"
+    	),
+        """
+    ]
+    prefix = """Have a conversation with a human, answering the following questions as best you can. You have access to the following tools:"""
+    suffix = """Begin!"
+        {chat_history} Question: {input} {agent_scratchpad}"""
+    prompt = ZeroShotAgent.create_prompt(
+        tools,
+        prefix=prefix,
+        suffix=suffix,
+        input_variables=["input", "chat_history", "agent_scratchpad"]
+    )
+    memory = ConversationBufferMemory(memory_key="chat_history")
+    llm_chain = LLMChain(llm=OpenAI(temperature=0), prompt=prompt)
+    agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools)
+    agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, memory=memory)
     chain_run = agent_chain.run(input=message)
     return chain_run

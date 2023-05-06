@@ -66,7 +66,7 @@ def chatbot_page(request):
             user_input = request.POST['userInput']
             print(user_input)
 
-            bot_response = indicator_chatbot(user_input)
+            bot_response = indicator_chatbot_function(user_input)
             print(bot_response)
 
             message_history = TradingBot.objects.get_or_create(

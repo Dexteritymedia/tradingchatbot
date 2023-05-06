@@ -11,13 +11,15 @@
 <div class="container">
 <div class="row text-center">
 	<div class="mt-5 mb-4">
-		<h1 class="text-white">Welcome {{user.username}}!</h1>
+		<h1 class="text-white">Welcome {{user.username|title}}!</h1>
 		<br/>
 		<a class="btn btn-outline-warning me-2"  href="{% url 'chatbot_page' %}" role="button">Start chatting!</a>
-		<a class="btn btn-outline-dark me-2"  href="{% url 'logout' %}" role="button">Logout</a>
+		<a class="btn btn-outline-dark me-2 mt-xs-3"  href="{% url 'logout' %}" role="button">Logout</a>
 		{% else %}
+		<h1 class="text-white">Welcome</h1>
+		<br/>
 		<a class="btn btn-outline-success me-2"  href="{% url 'register' %}" role="button">Sign Up</a>
-		<a class="btn btn-outline-primary me-2"  href="{% url 'login' %}" role="button">Login</a>
+		<a class="btn btn-outline-primary me-2 mt-3"  href="{% url 'login' %}" role="button">Login</a>
 		{% endif %}
 
 </div>

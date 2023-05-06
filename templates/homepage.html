@@ -15,7 +15,7 @@
                 {% csrf_token %}
                 <label for="exampleFormControlTextarea1" class="form-label">Enter your message</label>
                 <div class="d-flex mb-3 gap-2">
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="1" placeholder="How can i help you?" name="userInput"></textarea>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="1" placeholder="How can I help you?" name="userInput"></textarea>
                     <button class="ms-3 link-info" type="submit"><i class="fas fa-paper-plane"></i></button>
                 </div>
 				
@@ -30,14 +30,14 @@
 			
             <ol class="list-group mt-5" id="results">
                 {% for history in get_history %}
-				<div class="card text-white bg-secondary mt-5 mb-3">
+				<div class="card text-white mt-5 mb-3" style="background-color: #33b5e5;">
 					<div class="card-body">
 						<h4 class="card-title">Bot <i class="fa fa-robot"></i></h4>
 						<br/>
 							<p class="card-text">{{history.bot_response|safe}}</p>
 					</div>
 				</div>
-				<div class="card text-white bg-success mt-5 mb-3">
+				<div class="card text-white mt-5 mb-3" style="background-color: #ff4444;">
 					<div class="card-body">
 						<h4 class="card-title">{{history.user.username|title}} <i class="fas fa-user-circle"></i></h4>
 						<br/>

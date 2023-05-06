@@ -26,7 +26,7 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #e3f2fd;">
     <div class="container">
-      <a class="navbar-brand" href="/"><span style="color: #5e9693;">TradingChatbot</span></a>
+      <a class="navbar-brand" href="/"><h2 style="font-family: Georgia; color: #5e9693;">TradingChatbot</h2></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
         aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
         <ul class="navbar-nav d-flex flex-row">
           {% if user.is_authenticated %}
           <li class="nav-item me-3 me-lg-0">
-              <a class="nav-link"><i class="fa fa-user">Welcome, {{user.username}}!</a></i>
+              <a class="nav-link"><i class="fa fa-user"> Welcome, {{user.username}}!</a></i>
           </li>
           <li class="nav-item me-3 me-lg-0">
             <a class="nav-link" class="btn btn-danger btn-rounded" href="{% url "logout" %}">
